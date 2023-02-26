@@ -29,10 +29,9 @@ func main() {
 	engine := gin.Default()
 	engine.GET("/getone", func(ctx *gin.Context) {
 		if v := redislock.GetLock(); v > 0 {
-
-			uid, _ := ctx.Get("user_id")
-			pid, _ := ctx.Get("product_id")
-			msg, err := json.Marshal(rabbitmq.Message{UserId: uid.(int), ProdId: pid.(int)})
+			uid := ctx.Param("user_id")
+			pid := ctx.Param("product_id")
+			msg, err := json.Marshal(rabbitmq.Message{UserId: uid, ProdId: pid})
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -49,8 +49,8 @@ func (mq *RabbitMQ) Publish(msg []byte) {
 }
 
 type Message struct {
-	UserId int `json:"user_id"`
-	ProdId int `json:"prod_id"`
+	UserId string `json:"user_id"`
+	ProdId string `json:"prod_id"`
 }
 
 func (mq *RabbitMQ) Consumer() {
