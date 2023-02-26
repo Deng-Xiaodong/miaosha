@@ -13,7 +13,8 @@ type RedisConfig struct {
 }
 
 type AMQPConfig struct {
-	MqUrl string `json:"mqUrl"`
+	QueName string `json:"queName"`
+	MqUrl   string `json:"mqUrl"`
 }
 
 type GinConfig struct {
@@ -26,6 +27,22 @@ type Config struct {
 	GinCfg GinConfig   `json:"gin"`
 }
 
+func InitMqConfig(configFile string) *AMQPConfig {
+	mqCfg := &AMQPConfig{
+		QueName: "peadx",
+		MqUrl:   "amqp://guest:guest@miaosha.peadx.live:5672/miaosha",
+	}
+	bytes, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Println(err)
+		return mqCfg
+	}
+	if err := json.Unmarshal(bytes, mqCfg); err != nil {
+		log.Fatalln(err)
+	}
+	return mqCfg
+}
+
 func InitConfig(configFile string) *Config {
 	config := &Config{
 		RedCfg: RedisConfig{
@@ -33,7 +50,7 @@ func InitConfig(configFile string) *Config {
 			Port:     "6379",
 			Password: "123456",
 		},
-		MqCfg:  AMQPConfig{MqUrl: "amqp://guest:guest@miaosha.peadx.live:5672/miaosha"},
+		MqCfg:  AMQPConfig{QueName: "peadx", MqUrl: "amqp://guest:guest@miaosha.peadx.live:5672/miaosha"},
 		GinCfg: GinConfig{Port: "8080"},
 	}
 	bytes, err := os.ReadFile(configFile)

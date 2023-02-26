@@ -10,8 +10,6 @@ import (
 	"os"
 )
 
-const queName = "peadx"
-
 func main() {
 
 	//初始化配置
@@ -26,7 +24,7 @@ func main() {
 
 	//初始化RabbitMQ连接
 	rabbitmq.SetURL(config.MqCfg.MqUrl)
-	mq := rabbitmq.NewSimpleRabbitMQ(queName)
+	mq := rabbitmq.NewSimpleRabbitMQ(config.MqCfg.QueName)
 
 	engine := gin.Default()
 	engine.GET("/getone", func(ctx *gin.Context) {
