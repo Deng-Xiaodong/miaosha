@@ -45,6 +45,7 @@ func (mq *RabbitMQ) Publish(msg []byte) {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("生成一条信息")
 	_ = mq.Channel.Publish(mq.Exchange, mq.Queue, false, false, amqp.Publishing{ContentType: "text/plain", Body: msg})
 }
 
