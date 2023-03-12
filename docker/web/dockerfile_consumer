@@ -1,0 +1,5 @@
+FROM centos
+# docker-compose 需要挂载有可执行文件consumer的目录
+VOLUME ["/go/bin"]
+WORKDIR "/go/bin"
+ENTRYPOINT ["./consumer","/go/conf/rabbit.json"]

@@ -1,0 +1,6 @@
+{
+  "queName": "peadx",
+  "mqUrl": ["amqp://guest:guest@rabbitmq1/miaosha",
+    "amqp://guest:guest@rabbitmq2/miaosha",
+    "amqp://guest:guest@rabbitmq3/miaosha"]
+}

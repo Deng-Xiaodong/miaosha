@@ -1,0 +1,6 @@
+FROM golang:latest
+ENV GO111MODULE on
+ENV CGO_ENABLED 0
+VOLUME ["/go/src/miaosha","/go/bin/miaosha"]
+WORKDIR "/go/src/miaosha"
+ENTRYPOINT ["/bin/bash","complie.sh"]

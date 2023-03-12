@@ -1,0 +1,129 @@
+version: '3.8'
+services:
+  publish1:
+    container_name: publish-web-1
+    build:
+      dockerfile: "./dockerfile/dockerfile_publish"
+    volumes:
+      - ./bin/publish:/go/bin/publish
+      - ./conf/config.json:/go/conf/config.json
+    depends_on:
+      - redis
+      - rabbitmq1
+      - rabbitmq2
+      - rabbitmq3
+    networks:
+      - miaosha
+  publish2:
+    container_name: publish-web-2
+    build:
+      dockerfile: "./dockerfile/dockerfile_publish"
+    volumes:
+      - ./bin/publish:/go/bin/publish
+      - ./conf/config.json:/go/conf/config.json
+    depends_on:
+      - redis
+      - rabbitmq1
+      - rabbitmq2
+      - rabbitmq3
+    networks:
+      - miaosha
+  publish3:
+    container_name: publish-web-3
+    build:
+      dockerfile: "./dockerfile/dockerfile_publish"
+    volumes:
+      - ./bin/publish:/go/bin/publish
+      - ./conf/config.json:/go/conf/config.json
+    depends_on:
+      - redis
+      - rabbitmq1
+      - rabbitmq2
+      - rabbitmq3
+    networks:
+      - miaosha
+  consumer:
+    container_name: consumer-web
+    build:
+      dockerfile: "./dockerfile/dockerfile_consumer"
+    volumes:
+      - ./bin/consumer:/go/bin/consumer
+      - ./conf/rabbit.json:/go/conf/rabbit.json
+    depends_on:
+      - rabbitmq1
+      - rabbitmq2
+      - rabbitmq3
+    networks:
+      - miaosha
+  nginx:
+    container_name: miaosha-nginx
+    image: nginx:1.21.5
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - publish
+      - consumer
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./data/nginx:/usr/share/nginx/html
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - miaosha
+  redis:
+    container_name: miaosha-redis
+    image: redis:7.0-rc3
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    volumes:
+      - ./conf/redis.conf:/etc/redis/redis.conf
+      - ./data/redis:/data
+    networks:
+      - miaosha
+    command: redis-server /etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
+  rabbitmq1:
+    image: rabbitmq:3-management
+    container_name: rabbitmq1
+    hostname: rabbitmq1
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER root
+      - RABBITMQ_DEFAULT_PASS root
+      - RABBITMQ_ERLANG_COOKIE secretcookie
+    volumes:
+      - /rabbitmq1/data:/var/lib/rabbitmq
+    networks:
+      - miaosha
+  rabbitmq2:
+    image: rabbitmq:3-management
+    container_name: rabbitmq2
+    hostname: rabbitmq2
+    restart: on-failure
+    ports:
+      - "5673:5672"
+    environment:
+      - RABBITMQ_ERLANG_COOKIE secretcookie
+    volumes:
+      - /rabbitmq2/data:/var/lib/rabbitmq
+    networks:
+      - miaosha
+  rabbitmq3:
+    image: rabbitmq:3-management
+    container_name: rabbitmq3
+    hostname: rabbitmq3
+    restart: on-failure
+    ports:
+      - "5674:5672"
+    environment:
+      - RABBITMQ_ERLANG_COOKIE secretcookie
+    volumes:
+      - /rabbitmq3/data:/var/lib/rabbitmq
+    networks:
+      - miaosha
+networks:
+  miaosha:
+    driver: bridge
