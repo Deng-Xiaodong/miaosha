@@ -51,7 +51,7 @@ func (mq *RabbitMQ) Publish(msg []byte) {
 
 type Message struct {
 	UserId string `json:"user_id"`
-	ProdId string `json:"prod_id"`
+	ProdId string `json:"product_id"`
 }
 
 func (mq *RabbitMQ) Consumer() {
@@ -67,7 +67,7 @@ func (mq *RabbitMQ) Consumer() {
 			if err != nil {
 				println(err)
 			}
-			log.Printf("用户：%d 抢购了产品%d", message.UserId, message.ProdId)
+			log.Printf("用户：%s 抢购了产品%s", message.UserId, message.ProdId)
 			_ = msg.Ack(false)
 		}
 	}()
