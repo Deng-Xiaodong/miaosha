@@ -40,7 +40,8 @@ func main() {
 	//http服务
 	http.HandleFunc("/getone", func(w http.ResponseWriter, r *http.Request) {
 		//Ip限流
-		ip := strings.Split(r.RemoteAddr, ":")[0]
+
+		ip := strings.Split(r.Header.Get("X-Real-IP"), ":")[0]
 		redislock.RedisClient.SetNX(ip, 0, 15*time.Second)
 		redislock.RedisClient.Incr(ip)
 		cnt, _ := redislock.RedisClient.Get(ip).Int()
