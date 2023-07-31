@@ -15,6 +15,6 @@
     "inventory": 1000000,
     "limitKey": "miaosha_limit",
     "rate": 10,
-    "burst": 100
+    "burst": 200
   }
 }
