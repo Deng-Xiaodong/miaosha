@@ -7,5 +7,6 @@ import (
 
 func TestInitConfig(t *testing.T) {
 	config := InitConfig("config.json")
-	fmt.Printf("config:%v", config)
+
+	fmt.Printf("config:%v", config.LimitCfg)
 }

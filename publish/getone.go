@@ -25,15 +25,15 @@ func main() {
 	redislock.InitRedisClient(config.RedCfg)
 
 	//设置redis required keys if not exist
-	redislock.SetKeys(redislock.Keys{Key: config.Key, Value: strconv.Itoa(config.Burst)}, redislock.Keys{Key: config.Key + ":last", Value: strconv.FormatInt(time.Now().Unix(), 10)},
-		redislock.Keys{Key: "inventory", Value: strconv.FormatInt(config.Inventory, 10)})
+	redislock.SetKeys(redislock.Keys{Key: config.LimitCfg.LimitKey, Value: strconv.FormatInt(config.LimitCfg.Burst, 10)}, redislock.Keys{Key: config.LimitCfg.LimitKey + ":last", Value: strconv.FormatInt(time.Now().Unix(), 10)},
+		redislock.Keys{Key: "inventory", Value: strconv.FormatInt(config.LimitCfg.Inventory, 10)})
 
 	//初始化RabbitMQ连接
 	rabbitmq.SetURL(config.MqCfg.MqUrl)
 	mq := rabbitmq.NewSimpleRabbitMQ(config.MqCfg.QueName)
 
 	//初始化限流器
-	limit := redislock.NewLimit(config.Key, config.Rate, config.Burst)
+	limit := redislock.NewLimit(config.LimitCfg.LimitKey, config.LimitCfg.Rate, config.LimitCfg.Burst)
 
 	//http服务
 	http.HandleFunc("/getone", func(w http.ResponseWriter, r *http.Request) {

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const Inventory = 100
+const Inventory = 10 << 10
 
 type RedisConfig struct {
 	Address  string `json:"address"`
@@ -23,21 +23,23 @@ type HttpConfig struct {
 	Port string `json:"port"`
 }
 
-type Config struct {
+type LimitConfig struct {
 	Inventory int64  `json:"inventory"`
-	Key       string `json:"key"`
-	Rate      int    `json:"rate"`
-	Burst     int    `json:"burst"`
-
-	RedCfg  *RedisConfig `json:"redis"`
-	MqCfg   *AMQPConfig  `json:"rabbitmq"`
-	HttpCfg *HttpConfig  `json:"http"`
+	LimitKey  string `json:"limitKey"`
+	Burst     int64  `json:"burst"` //当前令牌数量，初始化为最大值burst
+	Rate      int64  `json:"rate"`
+}
+type Config struct {
+	LimitCfg *LimitConfig `json:"limit"`
+	RedCfg   *RedisConfig `json:"redis"`
+	MqCfg    *AMQPConfig  `json:"rabbitmq"`
+	HttpCfg  *HttpConfig  `json:"http"`
 }
 
 func InitMqConfig(configFile string) *AMQPConfig {
 	mqCfg := &AMQPConfig{
-		QueName: "peadx",
-		MqUrl:   "amqp://guest:guest@miaosha.peadx.live:5672/miaosha",
+		QueName: "local",
+		MqUrl:   "amqp://guest:guest@localhost:5672/miaosha",
 	}
 	bytes, err := os.ReadFile(configFile)
 	if err != nil {
@@ -52,16 +54,18 @@ func InitMqConfig(configFile string) *AMQPConfig {
 func InitConfig(configFile string) *Config {
 	//默认配置为本地测试环境
 	config := &Config{
-		Inventory: Inventory,
-		Key:       "miaosha_limit",
-		Rate:      1,
-		Burst:     100,
+		LimitCfg: &LimitConfig{
+			Inventory: Inventory,
+			LimitKey:  "miaosha_limit",
+			Rate:      1,
+			Burst:     100,
+		},
 		RedCfg: &RedisConfig{
-			Address:  "miaosha.peadx.live",
+			Address:  "localhost",
 			Port:     "6379",
 			Password: "123456",
 		},
-		MqCfg:   &AMQPConfig{QueName: "peadx", MqUrl: "amqp://guest:guest@miaosha.peadx.live:5672/miaosha"},
+		MqCfg:   &AMQPConfig{QueName: "local", MqUrl: "amqp://guest:guest@localhost:5672/miaosha"},
 		HttpCfg: &HttpConfig{Port: "8080"},
 	}
 	if configFile == "" {

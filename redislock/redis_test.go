@@ -10,9 +10,9 @@ import (
 var limit *Limit
 
 func init() {
-	config := common.InitConfig("")
+	config := common.InitConfig("miaosha/common/config.json")
 	InitRedisClient(config.RedCfg)
-	limit = NewLimit(config.Key, config.Rate, config.Burst)
+	limit = NewLimit(config.LimitCfg.LimitKey, config.LimitCfg.Rate, config.LimitCfg.Burst)
 }
 func TestGetOne(t *testing.T) {
 	var wg sync.WaitGroup

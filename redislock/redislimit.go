@@ -8,11 +8,11 @@ import (
 
 type Limit struct {
 	key   string
-	rate  int
-	burst int
+	rate  int64
+	burst int64
 }
 
-func NewLimit(key string, rate, burst int) *Limit {
+func NewLimit(key string, rate, burst int64) *Limit {
 	return &Limit{
 		key:   key,
 		rate:  rate,
