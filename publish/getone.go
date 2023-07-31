@@ -39,9 +39,9 @@ func main() {
 	//http服务
 	http.HandleFunc("/getone", func(w http.ResponseWriter, r *http.Request) {
 		//Ip限流
-		redislock.RedisClient.SetNX(r.RemoteAddr, 0, 10*time.Second)
-		redislock.RedisClient.Incr(r.RemoteAddr)
-		cnt, _ := redislock.RedisClient.Get(r.RemoteAddr).Int()
+		redislock.RedisClient.SetNX(r.Host, 0, 10*time.Second)
+		redislock.RedisClient.Incr(r.Host)
+		cnt, _ := redislock.RedisClient.Get(r.Host).Int()
 		if cnt > 5 {
 			rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请求过于频繁，网络拥堵"})
 			_, _ = w.Write(rsp)
