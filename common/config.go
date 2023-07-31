@@ -73,6 +73,7 @@ func InitConfig(configFile string) *Config {
 	}
 	bytes, err := os.ReadFile(configFile)
 	if err != nil {
+		log.Printf("文件读取错误\n")
 		return config
 	}
 
