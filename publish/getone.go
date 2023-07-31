@@ -18,6 +18,7 @@ func main() {
 	var configFile string
 	if len(os.Args) > 1 {
 		configFile = os.Args[1]
+		log.Printf("配置文件为：%s\n", configFile)
 	}
 	config := common.InitConfig(configFile)
 
