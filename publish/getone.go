@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/go-redis/redis"
 	"log"
 	"miaosha/common"
 	"miaosha/rabbitmq"
@@ -9,9 +10,23 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
+
+const script = `
+local key=KEYS[1]
+local expired=tonumber(ARGV[1])
+local limit=tonumber(ARGV[2])
+redis.call('setnx',key,0,expired)
+local cur=tonumber(redis.call('get',key) or 0)
+if cur>=limit then
+	return false
+else
+	cur=cur+1
+	redis.call('set',key,cur)
+	return true
+end
+`
 
 func main() {
 
@@ -41,12 +56,11 @@ func main() {
 	http.HandleFunc("/getone", func(w http.ResponseWriter, r *http.Request) {
 		//Ip限流
 
-		ip := strings.Split(r.Header.Get("X-Real-IP"), ":")[0]
-		redislock.RedisClient.SetNX(ip, 0, 15*time.Second)
-		redislock.RedisClient.Incr(ip)
-		cnt, _ := redislock.RedisClient.Get(ip).Int()
-		if cnt > 8 {
-			rsp, _ := json.Marshal(common.Error{Code: 504, Msg: "请求过于频繁，网络拥堵"})
+		m, n := 10, 2
+		ip := r.Header.Get("X-Real-IP")
+		ipBlock := redis.NewScript(script)
+		if ok, _ := ipBlock.Run(redislock.RedisClient, []string{ip}, m, n).Bool(); !ok {
+			rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请勿频繁访问，小心加入黑名单"})
 			_, _ = w.Write(rsp)
 			return
 		}

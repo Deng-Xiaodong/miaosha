@@ -6,7 +6,7 @@
   },
   "rabbitmq": {
     "queName": "peadx",
-    "mqUrl": "amqp://guest:guest@rabbitmq-core/miaosha"
+    "mqUrl": "amqp://guest:guest@rabbitmq1/miaosha"
   },
   "http": {
     "port": "8080"
