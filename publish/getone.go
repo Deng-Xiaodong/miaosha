@@ -14,16 +14,14 @@ import (
 )
 
 const script = `
-local key=KEYS[1]
-local expired=tonumber(ARGV[1])
 local limit=tonumber(ARGV[2])
-redis.call('setnx',key,0,expired)
-local cur=tonumber(redis.call('get',key) or 0)
+redis.call('SET',KEYS[1],0,'NX','PX',ARGV[1])
+local cur=tonumber(redis.call('GET',KEYS[1]) or 0)
 if cur>=limit then
 	return false
 else
 	cur=cur+1
-	redis.call('set',key,cur)
+	redis.call('SET',KEYS[1],cur)
 	return true
 end
 `
