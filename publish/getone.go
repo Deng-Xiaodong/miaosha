@@ -21,7 +21,7 @@ import (
 )
 
 const script = `
-redis.call('SET',KEYS[1],0,'NX','EX',2)
+redis.call('SETNX',KEYS[1],0,,'EX',2)
 local cur=tonumber(redis.call('GET',KEYS[1]) or 0)
 if cur>=5 then
 	return false
@@ -29,6 +29,18 @@ else
 	cur=cur+1
 	redis.call('SET',KEYS[1],cur)
 	return true
+end
+`
+const scriptBlockIP = `
+if redis.call('EXISTS', KEYS[1]) == 0 then
+    redis.call('SET', KEYS[1], 0)
+    redis.call('EXPIRE', KEYS[1], 2)
+else
+	if redis.call('INCR', KEYS[1])>5 then
+		return false
+	else
+		return true
+	end
 end
 `
 
@@ -113,7 +125,7 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 	return func(w http.ResponseWriter, r *http.Request) {
 		m, n := 10, 2
 		ip := r.Header.Get("X-Real-IP")
-		ipBlock := redis.NewScript(script)
+		ipBlock := redis.NewScript(scriptBlockIP)
 		if ok, err := ipBlock.Run(limit.RedisClient, []string{ip}, m, n).Bool(); err != nil || !ok {
 			log.Println(err)
 			rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请勿频繁访问，小心加入黑名单"})
