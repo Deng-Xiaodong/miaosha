@@ -128,6 +128,7 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 				pid := r.FormValue("product_id")
 				msg, _ := json.Marshal(rabbitmq.Message{UserId: uid, ProdId: pid})
 
+				log.Printf("准备发送消息：%s\n", msg)
 				rmq.Publish(msg)
 				rsp, _ := json.Marshal(common.Error{Code: 200, Msg: "抢购成功"})
 				_, _ = w.Write(rsp)

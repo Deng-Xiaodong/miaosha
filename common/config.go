@@ -61,7 +61,7 @@ func InitConfig(configFile string) *Config {
 			Burst:     100,
 		},
 		RedCfg: &RedisConfig{
-			Address:  "localhost",
+			Address:  "redis",
 			Port:     "6379",
 			Password: "123456",
 		},
