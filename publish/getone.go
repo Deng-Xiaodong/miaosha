@@ -205,14 +205,14 @@ func monitor() bool {
 	return percent[0] > 0.7
 }
 func monitorRoutine(ch chan os.Signal) {
-	tk := time.NewTicker(30 * time.Second)
+	tk := time.NewTicker(5 * time.Second)
 	cnt := 0
 	for {
 		select {
 		case <-tk.C:
 			if monitor() {
 				cnt++
-				if cnt >= 10 {
+				if cnt >= 5 {
 					log.Println("资源不足，通知先停止服务")
 					ch <- syscall.SIGUSR2 //通知shutdown协程停止服务
 					return
