@@ -2,4 +2,4 @@ FROM centos
 # docker-compose 需要挂载有可执行文件publish的目录
 VOLUME ["/go/bin"]
 WORKDIR "/go/bin"
-ENTRYPOINT ["./publish","/go/conf/config.json"]
+ENTRYPOINT ["./publish","-config_file=/go/conf/config.json"]

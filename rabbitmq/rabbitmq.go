@@ -16,13 +16,8 @@ type RabbitMQ struct {
 	MqUrl    string
 }
 
-var mqUrl string
-
-func SetURL(url string) {
-	mqUrl = url
-}
-func newRabbitMQ(que, eg, key string) *RabbitMQ {
-	return &RabbitMQ{Exchange: eg, Queue: que, BlindKey: key, MqUrl: mqUrl}
+func newRabbitMQ(que, eg, key, url string) *RabbitMQ {
+	return &RabbitMQ{Exchange: eg, Queue: que, BlindKey: key, MqUrl: url}
 }
 func doFail(err error, msg string) {
 	if err != nil {
@@ -30,8 +25,8 @@ func doFail(err error, msg string) {
 	}
 }
 
-func NewSimpleRabbitMQ(que string) *RabbitMQ {
-	mq := newRabbitMQ(que, "", "")
+func NewSimpleRabbitMQ(que, url string) *RabbitMQ {
+	mq := newRabbitMQ(que, "", "", url)
 	var err error
 	mq.Conn, err = amqp.Dial(mq.MqUrl)
 	doFail(err, fmt.Sprintf("%s:连接失败\n错误原因:%v", mq.MqUrl, err))

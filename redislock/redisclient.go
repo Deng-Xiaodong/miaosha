@@ -5,10 +5,10 @@ import (
 	"miaosha/common"
 )
 
-var RedisClient *redis.Client
+//var RedisClient *redis.Client
 
-func InitRedisClient(config *common.RedisConfig) {
-	RedisClient = redis.NewClient(&redis.Options{
+func InitRedisClient(config *common.RedisConfig) *redis.Client {
+	return redis.NewClient(&redis.Options{
 		Addr:     config.Address + ":" + config.Port,
 		Password: config.Password,
 	})

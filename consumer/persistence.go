@@ -14,7 +14,6 @@ func main() {
 	}
 	config := common.InitMqConfig(configFile)
 	//初始化RabbitMQ连接
-	rabbitmq.SetURL(config.MqUrl)
-	mq := rabbitmq.NewSimpleRabbitMQ(config.QueName)
+	mq := rabbitmq.NewSimpleRabbitMQ(config.QueName, config.MqUrl)
 	mq.Consumer()
 }

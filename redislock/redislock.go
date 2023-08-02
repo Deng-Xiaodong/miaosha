@@ -8,25 +8,33 @@ import (
 	"time"
 )
 
+type DisLock struct {
+	RedisClient *redis.Client
+}
+
+func NewDisLock(redc *redis.Client) *DisLock {
+	return &DisLock{redc}
+}
+
 type Keys struct {
 	Key   string
 	Value string
 }
 
-func SetKeys(keys ...Keys) {
+func SetKeys(redc *redis.Client, keys ...Keys) {
 	for _, key := range keys {
-		RedisClient.SetNX(key.Key, key.Value, 0)
+		redc.SetNX(key.Key, key.Value, 0)
 	}
 }
 
-func getOne() bool {
+func (dl *DisLock) getOne() bool {
 	//uuid作为锁标记，锁只能由加锁的人去解
 	sample := uuid.NewString()
-	if RedisClient.SetNX("LOCK", sample, 10*time.Second).Val() {
+	if dl.RedisClient.SetNX("LOCK", sample, 10*time.Second).Val() {
 
-		inventory, _ := RedisClient.Get("inventory").Int()
+		inventory, _ := dl.RedisClient.Get("inventory").Int()
 		if inventory > 0 {
-			RedisClient.Set("inventory", strconv.Itoa(inventory-1), 0)
+			dl.RedisClient.Set("inventory", strconv.Itoa(inventory-1), 0)
 		}
 
 		var luaScript = redis.NewScript(`
@@ -39,7 +47,7 @@ func getOne() bool {
 		end
 	`)
 		//执行脚本
-		r, err := luaScript.Run(RedisClient, []string{"LOCK"}, []string{sample}).Bool()
+		r, err := luaScript.Run(dl.RedisClient, []string{"LOCK"}, []string{sample}).Bool()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -47,7 +55,7 @@ func getOne() bool {
 	}
 	return false
 }
-func GetOne() bool {
+func (dl *DisLock) GetOne() bool {
 	//每个请求有两秒时间抢锁
 	c := time.NewTicker(2 * time.Second).C
 	for {
@@ -55,7 +63,7 @@ func GetOne() bool {
 		case <-c:
 			return false
 		default:
-			if getOne() {
+			if dl.getOne() {
 				return true
 			}
 		}

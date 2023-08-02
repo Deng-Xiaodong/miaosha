@@ -7,16 +7,18 @@ import (
 )
 
 type Limit struct {
-	key   string
-	rate  int64
-	burst int64
+	RedisClient *redis.Client
+	key         string
+	rate        int64
+	burst       int64
 }
 
-func NewLimit(key string, rate, burst int64) *Limit {
+func NewLimit(redc *redis.Client, key string, rate, burst int64) *Limit {
 	return &Limit{
-		key:   key,
-		rate:  rate,
-		burst: burst,
+		RedisClient: redc,
+		key:         key,
+		rate:        rate,
+		burst:       burst,
 	}
 }
 
@@ -41,7 +43,7 @@ end
 
 func (limit *Limit) Allow() bool {
 
-	r, err := redis.NewScript(luaScript).Run(RedisClient, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
+	r, err := redis.NewScript(luaScript).Run(limit.RedisClient, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
 	//r, err := RedisClient.Eval(luaScript, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
 	if err != nil && err != redis.Nil {
 		log.Fatalln(err)
