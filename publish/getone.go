@@ -56,6 +56,7 @@ func main() {
 	)
 	//初始化配置
 
+	log.Printf("配置文件是：%s\n", configFile)
 	config = common.InitConfig(configFile)
 
 	//初始化redis客户端连接并设置redis required keys if not exist
@@ -75,7 +76,7 @@ func main() {
 	rmq = rabbitmq.NewSimpleRabbitMQ(config.MqCfg.QueName, config.MqCfg.MqUrl)
 
 	http.HandleFunc("/getone", phrase(limit, dl, rmq))
-	server = &http.Server{Addr: ":8000"}
+	server = &http.Server{Addr: ":" + config.HttpCfg.Port}
 
 	var err error
 	if upgrade {
