@@ -113,7 +113,7 @@ func main() {
 	go func() {
 		//http服务
 		if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
-			log.Fatalln(err)
+			log.Printf("关闭服务错误：%v\n", err)
 		}
 	}()
 	setupSignal()
@@ -124,6 +124,7 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 	//Ip限流
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("request done at ", time.Now(), "  pid:", os.Getpid())
 		m, n := 10, 2
 		ip := r.Header.Get("X-Real-IP")
 		ipBlock := redis.NewScript(scriptBlockIP)
