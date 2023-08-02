@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: "./dockerfile/dockerfile_publish"
     volumes:
-      - ./bin/publish:/go/bin/publish
+      - ./bin:/go/bin
       - ./conf/config.json:/go/conf/config.json
     depends_on:
       - redis
@@ -19,7 +19,7 @@ services:
     build:
       dockerfile: "./dockerfile/dockerfile_publish"
     volumes:
-      - ./bin/publish:/go/bin/publish
+      - ./bin:/go/bin
       - ./conf/config.json:/go/conf/config.json
     depends_on:
       - redis
@@ -33,7 +33,7 @@ services:
     build:
       dockerfile: "./dockerfile/dockerfile_publish"
     volumes:
-      - ./bin/publish:/go/bin/publish
+      - ./bin:/go/bin
       - ./conf/config.json:/go/conf/config.json
     depends_on:
       - redis
@@ -47,7 +47,7 @@ services:
     build:
       dockerfile: "./dockerfile/dockerfile_consumer"
     volumes:
-      - ./bin/consumer:/go/bin/consumer
+      - ./bin:/go/bin
       - ./conf/rabbit.json:/go/conf/rabbit.json
     depends_on:
       - rabbitmq1
