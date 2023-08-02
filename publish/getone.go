@@ -127,7 +127,7 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 		ip := r.Header.Get("X-Real-IP")
 		ipBlock := redis.NewScript(scriptBlockIP)
 		if ok, err := ipBlock.Run(limit.RedisClient, []string{ip}, m, n).Bool(); err != nil || !ok {
-			log.Println(err)
+			log.Printf("ip block 脚本执行错误：%v\n", err)
 			rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请勿频繁访问，小心加入黑名单"})
 			_, _ = w.Write(rsp)
 			return
