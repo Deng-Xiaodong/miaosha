@@ -39,7 +39,7 @@ type Config struct {
 func InitMqConfig(configFile string) *AMQPConfig {
 	mqCfg := &AMQPConfig{
 		QueName: "peadx",
-		MqUrl:   "amqp://guest:guest@rabbitmq1:5672/miaosha",
+		MqUrl:   "amqp://root:root@rabbitmq1:5672/miaosha",
 	}
 	bytes, err := os.ReadFile(configFile)
 	if err != nil {
@@ -65,7 +65,7 @@ func InitConfig(configFile string) *Config {
 			Port:     "6379",
 			Password: "123456",
 		},
-		MqCfg:   &AMQPConfig{QueName: "peadx", MqUrl: "amqp://guest:guest@rabbitmq1:5672/miaosha"},
+		MqCfg:   &AMQPConfig{QueName: "peadx", MqUrl: "amqp://root:root@rabbitmq1:5672/miaosha"},
 		HttpCfg: &HttpConfig{Port: "8080"},
 	}
 	if configFile == "" {
