@@ -33,8 +33,9 @@ end
 `
 const scriptBlockIP = `
 if redis.call('EXISTS', KEYS[1]) == 0 then
-    redis.call('SET', KEYS[1], 0)
+    redis.call('SET', KEYS[1], 1)
     redis.call('EXPIRE', KEYS[1], 20)
+	return true
 else
 	if redis.call('INCR', KEYS[1])>10 then
 		return false
