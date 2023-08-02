@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-redis/redis"
+	"github.com/shirou/gopsutil/cpu"
 	"log"
 	"miaosha/common"
 	"miaosha/rabbitmq"
@@ -15,22 +16,12 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"syscall"
 	"time"
 )
 
-const script = `
-redis.call('SETNX',KEYS[1],0,,'EX',2)
-local cur=tonumber(redis.call('GET',KEYS[1]) or 0)
-if cur>=5 then
-	return false
-else
-	cur=cur+1
-	redis.call('SET',KEYS[1],cur)
-	return true
-end
-`
 const scriptBlockIP = `
 if redis.call('EXISTS', KEYS[1]) == 0 then
     redis.call('SET', KEYS[1], 1)
@@ -57,7 +48,16 @@ func init() {
 	flag.StringVar(&configFile, "config_file", "", "set config argv for redis and rabbitMQ")
 }
 
+func task() {
+	a := 100
+	for {
+		a += 1
+	}
+}
 func main() {
+	runtime.GOMAXPROCS(3)
+	go task()
+	go task()
 	flag.Parse()
 	fmt.Println("start-up at ", time.Now(), upgrade)
 	var (
@@ -65,6 +65,7 @@ func main() {
 		rmq    *rabbitmq.RabbitMQ
 		limit  *redislock.Limit
 		dl     *redislock.DisLock
+		ch     = make(chan os.Signal, 1)
 	)
 	//初始化配置
 
@@ -116,7 +117,8 @@ func main() {
 			log.Printf("关闭服务错误：%v\n", err)
 		}
 	}()
-	setupSignal()
+	go monitorRoutine(ch)
+	setupSignal(ch)
 	fmt.Println("over")
 
 }
@@ -158,8 +160,8 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 	}
 
 }
-func setupSignal() {
-	ch := make(chan os.Signal, 1)
+func setupSignal(ch chan os.Signal) {
+
 	signal.Notify(ch, syscall.SIGUSR2, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-ch
 	switch sig {
@@ -196,4 +198,28 @@ func forkProcess() error {
 	}
 	cmd.ExtraFiles = []*os.File{lfd}
 	return cmd.Start()
+}
+func monitor() bool {
+	percent, _ := cpu.Percent(time.Second, false)
+	log.Printf("cpu 使用率为：%v", percent[0])
+	return percent[0] > 0.7
+}
+func monitorRoutine(ch chan os.Signal) {
+	tk := time.NewTicker(30 * time.Second)
+	cnt := 0
+	for {
+		select {
+		case <-tk.C:
+			if monitor() {
+				cnt++
+				if cnt >= 10 {
+					log.Println("资源不足，通知先停止服务")
+					ch <- syscall.SIGUSR2 //通知shutdown协程停止服务
+					return
+				}
+			} else {
+				cnt = 0
+			}
+		}
+	}
 }
