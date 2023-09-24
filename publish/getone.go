@@ -16,7 +16,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"runtime"
 	"strconv"
 	"syscall"
 	"time"
@@ -55,9 +54,9 @@ func task() {
 	}
 }
 func main() {
-	runtime.GOMAXPROCS(3)
-	go task()
-	go task()
+	//runtime.GOMAXPROCS(3)
+	//go task()
+	//go task()
 	flag.Parse()
 	fmt.Println("start-up at ", time.Now(), upgrade)
 	var (

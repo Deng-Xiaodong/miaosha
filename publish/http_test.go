@@ -73,18 +73,25 @@ func TestShutdown(t *testing.T) {
 
 		//time.Sleep(30 * time.Second)
 		tk := time.NewTicker(30 * time.Second)
+		cnt := 0
 		for {
 			select {
 			case <-tk.C:
 				if monitor() {
-					log.Println("资源不足，通知先停止服务")
-					slight <- os.Interrupt //通知shutdown协程停止服务
+					cnt++
+					if cnt >= 5 {
+						log.Println("资源不足，通知先停止服务")
+						slight <- os.Interrupt //通知shutdown协程停止服务
 
-					<-idleConnClosed //接收服务已正常停止完毕信号
-					log.Println("已停止完成")
-					log.Println("通知可以继续开启服务")
-					workAgainChan <- struct{}{} //通知主协程继续开放http服务
+						<-idleConnClosed //接收服务已正常停止完毕信号
+						log.Println("已停止完成")
+						log.Println("通知可以继续开启服务")
+						workAgainChan <- struct{}{} //通知主协程继续开放http服务
+						cnt = 0
+					}
 
+				} else {
+					cnt = 0
 				}
 			}
 		}
@@ -104,9 +111,4 @@ func TestShutdown(t *testing.T) {
 
 	}
 
-}
-func monitor() bool {
-	//percent, _ := cpu.Percent(time.Second, false)
-	//return percent[0]>0.7
-	return true
 }
