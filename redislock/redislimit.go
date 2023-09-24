@@ -2,8 +2,6 @@ package redislock
 
 import (
 	"github.com/go-redis/redis"
-	"log"
-	"time"
 )
 
 type Limit struct {
@@ -42,11 +40,12 @@ end
 `
 
 func (limit *Limit) Allow() bool {
+	return true
 
-	r, err := redis.NewScript(luaScript).Run(limit.RedisClient, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
-	//r, err := RedisClient.Eval(luaScript, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
-	if err != nil && err != redis.Nil {
-		log.Fatalln(err)
-	}
-	return r
+	//r, err := redis.NewScript(luaScript).Run(limit.RedisClient, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
+	////r, err := RedisClient.Eval(luaScript, []string{limit.key}, limit.rate, limit.burst, time.Now().Unix()).Bool()
+	//if err != nil && err != redis.Nil {
+	//	log.Fatalln(err)
+	//}
+	//return r
 }
