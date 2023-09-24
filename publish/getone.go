@@ -99,7 +99,7 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("graceful-reborn  %v %v  %#v \n", fd.Fd(), fd.Name(), ln)
-		fd.Close()
+		//fd.Close()
 	} else {
 		ln, err = net.Listen("tcp", server.Addr)
 		if err != nil {
@@ -115,6 +115,7 @@ func main() {
 		if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
 			log.Printf("关闭服务错误：%v\n", err)
 		}
+		log.Println("http 服务退出")
 	}()
 	go monitorRoutine(ch)
 	setupSignal(ch)
@@ -211,7 +212,7 @@ func monitorRoutine(ch chan os.Signal) {
 		case <-tk.C:
 			if monitor() {
 				cnt++
-				if cnt >= 5 {
+				if cnt >= 50 {
 					log.Println("资源不足，通知先停止服务")
 					ch <- syscall.SIGUSR2 //通知shutdown协程停止服务
 					return
