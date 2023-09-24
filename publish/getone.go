@@ -164,6 +164,7 @@ func setupSignal(ch chan os.Signal) {
 
 	signal.Notify(ch, syscall.SIGUSR2, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-ch
+	log.Printf("接收到信号%v\n", sig)
 	switch sig {
 	case syscall.SIGUSR2:
 		log.Println("signal cause fork")
@@ -201,8 +202,10 @@ func forkProcess() error {
 }
 func monitor() bool {
 	percent, _ := cpu.Percent(time.Second, false)
-	log.Printf("cpu 使用率为：%v", percent[0])
-	return percent[0] > 0.7
+	if percent[0] > 70 {
+		log.Printf("cpu 使用率为：%v", percent[0])
+	}
+	return percent[0] > 70
 }
 func monitorRoutine(ch chan os.Signal) {
 	tk := time.NewTicker(5 * time.Second)
