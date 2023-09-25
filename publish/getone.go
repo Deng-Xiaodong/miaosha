@@ -127,15 +127,15 @@ func phrase(limit *redislock.Limit, dl *redislock.DisLock, rmq *rabbitmq.RabbitM
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("request done at ", time.Now(), "  pid:", os.Getpid())
-		m, n := 10, 2
-		ip := r.Header.Get("X-Real-IP")
-		ipBlock := redis.NewScript(scriptBlockIP)
-		if ok, err := ipBlock.Run(limit.RedisClient, []string{ip}, m, n).Bool(); err != nil || !ok {
-			log.Printf("ip blocked ：%v\n", err)
-			rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请勿频繁访问，小心加入黑名单"})
-			_, _ = w.Write(rsp)
-			return
-		}
+		//m, n := 10, 2
+		//ip := r.Header.Get("X-Real-IP")
+		//ipBlock := redis.NewScript(scriptBlockIP)
+		//if ok, err := ipBlock.Run(limit.RedisClient, []string{ip}, m, n).Bool(); err != nil || !ok {
+		//	log.Printf("ip blocked ：%v\n", err)
+		//	rsp, _ := json.Marshal(common.Error{Code: 500, Msg: "请勿频繁访问，小心加入黑名单"})
+		//	_, _ = w.Write(rsp)
+		//	return
+		//}
 		//拿到令牌才能被服务
 		if limit.Allow() {
 			log.Printf("%v    %s get access", time.Now(), r.RemoteAddr)
